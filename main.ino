@@ -12,7 +12,7 @@ void lerBotoes();  //Função que le o estado dos botoes
 void tela_inicial();   //Função da tela inicial, data e hora atuais
 void telaTemperatura(); //Função horário programável 1
 void telaHumidadeSolo(); //Função horário programável 2
-void tela_horario_3(); //Função horário programável 3
+void telaUltimaIrrigacao(); //Função horário programável 3
 
 // --- Variáveis Globais ---
 int menu = 1; //Variável para selecionar o menu
@@ -137,7 +137,7 @@ void dispMenu() //Mostra o menu atual
 
         break;            //break
     case 0x04:            //Caso 4
-        tela_horario_3(); //Chama função para o controle dos minutos
+        telaUltimaIrrigacao(); //Chama função para o controle dos minutos
 
         break; //break
     }          //end switch menu
@@ -179,7 +179,7 @@ void telaHumidadeSolo()
     disp.print("XXXX");
 }
 
-void tela_horario_3()
+void telaUltimaIrrigacao()
 {
 
     disp.setCursor(0, 0); //Posiciona cursor na coluna 1, linha 1
@@ -196,10 +196,10 @@ void tela_horario_3()
     if (funcao_butSelect)
     {
         disp.clear();
-        disp.setCursor(3, 0);
-        disp.print("Horario 3");
-        disp.setCursor(2, 1);
-        disp.print("Habilitado!");
+        disp.setCursor(0, 0);
+        disp.print("Ultima irrigacao");
+        disp.setCursor(1, 1);
+        disp.print("atualizada!");
         delay(5000);
         disp.clear();
         limpaFuncoes();
