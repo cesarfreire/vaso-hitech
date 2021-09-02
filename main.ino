@@ -10,8 +10,8 @@ void lerBotoes();  //Função que le o estado dos botoes
 
 // --- Protótipo das Funções das telas ---
 void tela_inicial();   //Função da tela inicial, data e hora atuais
-void tela_horario_1(); //Função horário programável 1
-void tela_horario_2(); //Função horário programável 2
+void telaTemperatura(); //Função horário programável 1
+void telaHumidadeSolo(); //Função horário programável 2
 void tela_horario_3(); //Função horário programável 3
 
 // --- Variáveis Globais ---
@@ -22,11 +22,10 @@ boolean estado_butUP, estado_butDown, estado_butDireito, estado_butEsquerdo, est
 boolean funcao_butUp, funcao_butDown, funcao_butDireito, funcao_butEsquerdo, funcao_butSelect; //Flags para armazenar a função dos botões
 
 // --- Variáveis das escolhas dos horários
-
-byte valorHora1 = 1; // Variável com valor inicial das horas
-byte valorHora2 = 1; // Variável com valor inicial das horas
-byte valorHora3 = 1; // Variável com valor inicial das horas
-byte valorMinutos1, valorMinutos2, valorMinutos3 = 0; //Variável com valor inicial dos minutos
+byte ultimoDiaIrrigado = 0;
+byte ultimoMesIrrigado = 0;
+byte ultimaHoraIrrigado = 0; // Variável com valor inicial das horas
+byte ultimoMinutoIrrigado = 0; //Variável com valor inicial dos minutos
 
 // initialize the library with the numbers of the interface pins
 LiquidCrystal disp(8, 9, 4, 5, 6, 7);
@@ -130,11 +129,11 @@ void dispMenu() //Mostra o menu atual
 
         break;            //break
     case 0x02:            //Caso 4
-        tela_horario_1(); //Chama função para o definir a quantidade
+        telaTemperatura(); //Chama função para o definir a quantidade
 
         break;            //break
     case 0x03:            //Caso 4
-        tela_horario_2(); //Chama função para o controle dos minutos
+        telaHumidadeSolo(); //Chama função para o controle dos minutos
 
         break;            //break
     case 0x04:            //Caso 4
@@ -146,10 +145,10 @@ void dispMenu() //Mostra o menu atual
 
 void tela_inicial()
 {
-    disp.setCursor(2, 0); //Posiciona cursor na coluna 2, linha 1
-    disp.print("Cesar Freire");
+    disp.setCursor(0, 0); //Posiciona cursor na coluna 2, linha 1
+    disp.print("Joana: a planta.");
     disp.setCursor(4, 1); //Posiciona cursor na coluna 2, linha 2
-    disp.print("11:21 hrs");
+    disp.print("by Cesar");
 
     if (funcao_butDireito) //Se a função do botão P (DIREITA) for acionada
     {
@@ -164,166 +163,35 @@ void tela_inicial()
     }
 }
 
-void tela_horario_1()
+void telaTemperatura()
 {
-
-    disp.setCursor(3, 0); //Posiciona cursor na coluna 1, linha 1
-    disp.print("Horario 1:");
-    disp.setCursor(1, 1); //Posiciona cursor na coluna 1, linha 1
-    disp.print(valorHora1);
-    disp.print(" Hrs");
-    disp.setCursor(9, 1);
-    disp.print(valorMinutos1);
-    disp.print(" min");
-
-    if (funcao_butDireito)
-    {
-        valorMinutos1 = valorMinutos1 + 10;
-        limpaFuncoes();
-    }
-
-    if (funcao_butEsquerdo)
-    {
-        valorHora1++;
-        limpaFuncoes();
-    }
-
-    if (valorHora1 > 23)
-    {
-        valorHora1 = 1;
-    }
-    if (valorHora1 < 1)
-    {
-        valorHora1 = 23;
-    }
-    if (valorMinutos1 > 60)
-    {
-        valorMinutos1 = 0;
-    }
-    if (valorMinutos1 < 0)
-    {
-        valorMinutos1 = 59;
-    }
-    if (valorMinutos1 == 60)
-    {
-        valorMinutos1 = 59;
-    }
-
-    if (funcao_butSelect)
-    {
-        disp.clear();
-        disp.setCursor(3, 0);
-        disp.print("Horario 1");
-        disp.setCursor(2, 1);
-        disp.print("Habilitado!");
-        delay(5000);
-        disp.clear();
-        limpaFuncoes();
-    }
+    disp.setCursor(2, 0); //Posiciona cursor na coluna 2, linha 1
+    disp.print("Temperatura:");
+    disp.setCursor(6, 1); //Posiciona cursor na coluna 1, linha 1
+    disp.print("24 C");
 }
 
-void tela_horario_2()
+void telaHumidadeSolo()
 {
-
-    disp.setCursor(3, 0); //Posiciona cursor na coluna 1, linha 1
-    disp.print("Horario 2:");
-    disp.setCursor(1, 1); //Posiciona cursor na coluna 1, linha 1
-    disp.print(valorHora2);
-    disp.print(" Hrs");
-    disp.setCursor(9, 1);
-    disp.print(valorMinutos2);
-    disp.print(" min");
-
-    if (funcao_butDireito)
-    {
-        valorMinutos2 = valorMinutos2 + 10;
-        limpaFuncoes();
-    }
-
-    if (funcao_butEsquerdo)
-    {
-        valorHora2++;
-        limpaFuncoes();
-    }
-
-    if (valorHora2 > 23)
-    {
-        valorHora2 = 1;
-    }
-    if (valorHora2 < 1)
-    {
-        valorHora2 = 23;
-    }
-    if (valorMinutos2 > 60)
-    {
-        valorMinutos2 = 0;
-    }
-    if (valorMinutos2 < 0)
-    {
-        valorMinutos2 = 59;
-    }
-    if (valorMinutos2 == 60)
-    {
-        valorMinutos2 = 59;
-    }
-
-    if (funcao_butSelect)
-    {
-        disp.clear();
-        disp.setCursor(3, 0);
-        disp.print("Horario 2");
-        disp.setCursor(2, 1);
-        disp.print("Habilitado!");
-        delay(5000);
-        disp.clear();
-        limpaFuncoes();
-    }
+    disp.setCursor(1, 0); //Posiciona cursor na coluna 2, linha 1
+    disp.print("Humidade solo:");
+    disp.setCursor(6, 1); //Posiciona cursor na coluna 1, linha 1
+    disp.print("XXXX");
 }
 
 void tela_horario_3()
 {
 
-    disp.setCursor(3, 0); //Posiciona cursor na coluna 1, linha 1
-    disp.print("Horario 3:");
+    disp.setCursor(0, 0); //Posiciona cursor na coluna 1, linha 1
+    disp.print("Ultima irrigacao");
     disp.setCursor(1, 1); //Posiciona cursor na coluna 1, linha 1
-    disp.print(valorHora3);
-    disp.print(" Hrs");
-    disp.setCursor(9, 1);
-    disp.print(valorMinutos3);
-    disp.print(" min");
-
-    if (funcao_butDireito)
-    {
-        valorMinutos3 = valorMinutos3 + 10;
-        limpaFuncoes();
-    }
-
-    if (funcao_butEsquerdo)
-    {
-        valorHora3++;
-        limpaFuncoes();
-    }
-
-    if (valorHora3 > 23)
-    {
-        valorHora3 = 1;
-    }
-    if (valorHora3 < 1)
-    {
-        valorHora3 = 23;
-    }
-    if (valorMinutos3 > 60)
-    {
-        valorMinutos3 = 0;
-    }
-    if (valorMinutos3 < 0)
-    {
-        valorMinutos3 = 59;
-    }
-    if (valorMinutos3 == 60)
-    {
-        valorMinutos3 = 59;
-    }
+    disp.print(ultimaHoraIrrigado);
+    disp.print(":");
+    disp.print(ultimoMinutoIrrigado);
+    disp.print(" - ");
+    disp.print(ultimoDiaIrrigado);
+    disp.print("/");
+    disp.print(ultimoMesIrrigado);
 
     if (funcao_butSelect)
     {
