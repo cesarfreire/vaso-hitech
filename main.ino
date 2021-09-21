@@ -56,11 +56,14 @@ byte ultimoMinutoIrrigado = 0;
 // Define os botoes do display LCD
 LiquidCrystal disp(8, 9, 4, 5, 6, 7);
 
+// Variaveis para guardar a temperatura e humidade do solo
 float h;
 float t;
 
 // --- Variavel que guarda a humidade do solo
 int humidadeAnalogico;
+
+// Variavel que guarda a porcentagem de humidade do solo
 int humidade;
 
 // Objeto hora e data
