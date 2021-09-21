@@ -3,25 +3,36 @@
 
 // Blibioteca sensor temperatura e humidade
 #include "DHT.h"
- 
-#define DHTPIN A1 // pino que estamos conectando o sensor DTH
-#define DHTTYPE DHT11 // DHT 11 > tipo do DTH
 
+// Biblioteca módulo Real Time Clock
+#include <DS3231.h>
+ 
+ // pino que estamos conectando o sensor temperatura/humidade
+#define DHTPIN A1
+
+// Tipo do sensor de temperatura e humidade (DHT 11)
+#define DHTTYPE DHT11
+
+// Pino do sensor de humidade
 #define sensorHumidade A4
 
-// entrada analógica dos botões
+// Pino entrada analógica dos botões
 #define Botoes A0
 
 // Objeto DTH sensor temperatura
 DHT dht(DHTPIN, DHTTYPE);
 
+// Objeto modulo Real Time Clock
+DS3231 rtc;  //objeto do tipo DS3231
+
+// Objeto data e hora
+RTCDateTime dataehora; //Criação do objeto do tipo RTCDateTime
+
 // --- Protótipo das Funções Auxiliares ---
 void changeMenu(); //Função para modificar o menu atual
 void dispMenu();   //Função para mostrar o menu atual
 void lerBotoes();  //Função que le o estado dos botoes
-
-
-void leTemperatura();
+void leTemperaturaAtual(); //Funcao que le a temperatura atual
 
 // --- Protótipo das Funções das telas ---
 void tela_inicial();   //Função da tela inicial, data e hora atuais
@@ -39,10 +50,10 @@ boolean funcao_butUp, funcao_butDown, funcao_butDireito, funcao_butEsquerdo, fun
 // --- Variáveis das escolhas dos horários
 byte ultimoDiaIrrigado = 0;
 byte ultimoMesIrrigado = 0;
-byte ultimaHoraIrrigado = 0; // Variável com valor inicial das horas
-byte ultimoMinutoIrrigado = 0; //Variável com valor inicial dos minutos
+byte ultimaHoraIrrigado = 0;
+byte ultimoMinutoIrrigado = 0;
 
-// initialize the library with the numbers of the interface pins
+// Define os botoes do display LCD
 LiquidCrystal disp(8, 9, 4, 5, 6, 7);
 
 float h;
@@ -57,15 +68,20 @@ RTCDateTime dataehora;
 
 void setup()
 {
+    // Define pino A0 como INPUT
     pinMode(Botoes, INPUT);
+
+    // Define o pino A4 como INPUT
     pinMode(sensorHumidade, INPUT);
+
+    //Inicializa o RTC
+    rtc.begin();
 
     // Inicia o display LCD
     disp.begin(16, 2);
+
     // Inicia serial
     Serial.begin(9600);
-
-    Serial.println("DHTxx test!");
 
     // Inicia o DHT
     dht.begin();
@@ -78,41 +94,43 @@ void setup()
     
 }
 
-void loop()
+void loop() // Laco infinito
 {
+    leTemperaturaAtual(); // Le a temperatura atual
+    leHumidadeSolo(); // Le a humidade do solo
     lerBotoes();  //Verifica o estado dos botões
     changeMenu(); //Muda a tela conforme a selecionada
-    dispMenu();
-    leTemperatura();
-    leHumidadeSolo();
-    Serial.println(analogRead(Botoes));
+    dispMenu(); // Exibe o item do menu
+
+    //Serial.println(analogRead(Botoes)); // Printa no serial o valor analogico dos botoes
 }
 
 // --- Desenvolvimento das Funções Auxiliares ---
 void lerBotoes()
 {
+    // Le o valor dos botoes
     int valorbotao = analogRead(Botoes);
    
     if (valorbotao > 1008 && valorbotao < 1020)
-        estado_butDireito = 0x01;             //Botão P pressionado? Seta flag
-    if (valorbotao < 50 && estado_butDireito) //Botão P solto e flag setada?                         // BOTÃO LADO DIREITO
+        estado_butDireito = 0x01;             //Botão DIREITO pressionado? Seta flag
+    if (valorbotao < 50 && estado_butDireito) //Botão DIREITO solto e flag setada?
     {                                         //Se for sim...
         estado_butDireito = 0;                //Limpa flag
-        funcao_butDireito = 1;                //Ativa função Botao p
+        funcao_butDireito = 1;                //Ativa função Botao DIREITO
     }
     else if (valorbotao > 340 && valorbotao < 372)
-        estado_butEsquerdo = 0x01;             //Botão M pressionado? Seta flag
-    if (valorbotao < 50 && estado_butEsquerdo) //Botão M solto e flag setada?                         // BOTÃO LADO ESQUERDO
+        estado_butEsquerdo = 0x01;             //Botão ESQUERDO pressionado? Seta flag
+    if (valorbotao < 50 && estado_butEsquerdo) //Botão ESQUERDO solto e flag setada?                         // BOTÃO LADO ESQUERDO
     {                                          //Se for sim...
         estado_butEsquerdo = 0;                //Limpa flag
-        funcao_butEsquerdo = 1;                //Ativa função Botao M
+        funcao_butEsquerdo = 1;                //Ativa função Botao ESQUERDO
     }
     else if (valorbotao > 500 && valorbotao < 540)
-        estado_butSelect = 0x01;             //Botão M pressionado? Seta flag
-    if (valorbotao < 50 && estado_butSelect) //Botão M solto e flag setada?                         // BOTÃO SELECT
+        estado_butSelect = 0x01;             //Botão SELECT pressionado? Seta flag
+    if (valorbotao < 50 && estado_butSelect) //Botão SELECT solto e flag setada?                         // BOTÃO SELECT
     {                                        //Se for sim...
         estado_butSelect = 0;                //Limpa flag
-        funcao_butSelect = 1;                //Ativa função Botao M
+        funcao_butSelect = 1;                //Ativa função Botao SELECT
     }
 
 } // end lerBotoes
@@ -229,7 +247,7 @@ void telaUltimaIrrigacao()
     }
 }
 
-void limpaFuncoes()
+void limpaFuncoes() // Funcao que limpa as variaveis de funcao
 {
     funcao_butUp = 0;
     funcao_butDown = 0;
@@ -238,11 +256,12 @@ void limpaFuncoes()
     funcao_butSelect = 0;
 }
 
-void leTemperatura()
+void leTemperaturaAtual() // Funcao que le a temperatura atual
 {
 
   h = dht.readHumidity();
   t = dht.readTemperature();
+  
   // testa se retorno é valido, caso contrário algo está errado.
   if (isnan(t) || isnan(h)) 
   {
