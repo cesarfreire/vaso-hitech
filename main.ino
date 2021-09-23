@@ -19,6 +19,10 @@
 // Pino entrada analógica dos botões
 #define Botoes A0
 
+// Variaveis dos horários
+byte valorHoras = 1;
+byte valorMinutos = 1;
+
 // Objeto DTH sensor temperatura
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -94,11 +98,19 @@ void setup()
     estado_butDireito = 0x00; //limpa flag do botão P
     estado_butEsquerdo = 0x00; //limpa flag do botão M
 
+    // --- Definir a hora, dia da semana e o ano do RTC --- EXECUTAR APENAS UMA VEZ
+    //rtc.setDOW(WEDNESDAY); //Setar o dia da semana em INGLES
+    //rtc.setTime(19, 22, 0); //Seta o horário. Ex.: para 12:00:00 (24hr format)
+    //rtc.setDate(26, 10, 2017); //Seta a data. Ex.: 20 de Agosto de 2017
+
+    //rtc.setDateTime(__DATE__, __TIME__);
+
     
 }
 
 void loop() // Laco infinito
 {
+    dataehora = rtc.getDateTime(); // Obtem a data e a hora e 'escreve' na variável
     leTemperaturaAtual(); // Le a temperatura atual
     leHumidadeSolo(); // Le a humidade do solo
     lerBotoes();  //Verifica o estado dos botões
@@ -190,8 +202,11 @@ void tela_inicial()
 {
     disp.setCursor(0, 0); //Posiciona cursor na coluna 2, linha 1
     disp.print("Joana: a planta.");
-    disp.setCursor(4, 1); //Posiciona cursor na coluna 2, linha 2
-    disp.print("by Cesar");
+    disp.setCursor(4, 1);       //Posiciona cursor na coluna 1, linha 2
+    disp.print(dataehora.hour); //Informa as horas atraves do RTC
+    disp.print(":");
+    disp.print(dataehora.minute);
+    disp.print("h");
 
     if (funcao_butDireito) //Se a função do botão P (DIREITA) for acionada
     {
