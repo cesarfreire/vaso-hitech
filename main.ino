@@ -6,8 +6,8 @@
 
 // Biblioteca módulo Real Time Clock
 #include <DS3231.h>
- 
- // pino que estamos conectando o sensor temperatura/humidade
+
+// pino que estamos conectando o sensor temperatura/humidade
 #define DHTPIN A1
 
 // Tipo do sensor de temperatura e humidade (DHT 11)
@@ -27,21 +27,21 @@ byte valorMinutos = 1;
 DHT dht(DHTPIN, DHTTYPE);
 
 // Objeto modulo Real Time Clock
-DS3231 rtc;  //objeto do tipo DS3231
+DS3231 rtc; //objeto do tipo DS3231
 
 // Objeto data e hora
 RTCDateTime dataehora; //Criação do objeto do tipo RTCDateTime
 
 // --- Protótipo das Funções Auxiliares ---
-void changeMenu(); //Função para modificar o menu atual
-void dispMenu();   //Função para mostrar o menu atual
-void lerBotoes();  //Função que le o estado dos botoes
+void changeMenu();         //Função para modificar o menu atual
+void dispMenu();           //Função para mostrar o menu atual
+void lerBotoes();          //Função que le o estado dos botoes
 void leTemperaturaAtual(); //Funcao que le a temperatura atual
 
 // --- Protótipo das Funções das telas ---
-void tela_inicial();   //Função da tela inicial, data e hora atuais
-void telaTemperatura(); //Função horário programável 1
-void telaHumidadeSolo(); //Função horário programável 2
+void tela_inicial();        //Função da tela inicial, data e hora atuais
+void telaTemperatura();     //Função horário programável 1
+void telaHumidadeSolo();    //Função horário programável 2
 void telaUltimaIrrigacao(); //Função horário programável 3
 
 // --- Variáveis Globais ---
@@ -60,15 +60,15 @@ byte ultimoMinutoIrrigado = 0;
 // Define os botoes do display LCD
 LiquidCrystal disp(8, 9, 4, 5, 6, 7);
 
-// Variaveis para guardar a temperatura e humidade do solo
-float h;
-float t;
+// Variaveis para guardar a temperatura e humidade do ambiente
+float humidadeAmbiente;
+float temperaturaAmbiente;
 
 // --- Variavel que guarda a humidade do solo
-int humidadeAnalogico;
+int humidadeAnalogicoSolo;
 
 // Variavel que guarda a porcentagem de humidade do solo
-int humidade;
+int humidadeSolo;
 
 // Objeto hora e data
 RTCDateTime dataehora;
@@ -93,9 +93,9 @@ void setup()
     // Inicia o DHT
     dht.begin();
 
-    estado_butUP = 0x00; //limpa flag do botão Up
-    estado_butDown = 0x00; //limpa flag do botão Down
-    estado_butDireito = 0x00; //limpa flag do botão P
+    estado_butUP = 0x00;       //limpa flag do botão Up
+    estado_butDown = 0x00;     //limpa flag do botão Down
+    estado_butDireito = 0x00;  //limpa flag do botão P
     estado_butEsquerdo = 0x00; //limpa flag do botão M
 
     // --- Definir a hora, dia da semana e o ano do RTC --- EXECUTAR APENAS UMA VEZ
@@ -104,18 +104,16 @@ void setup()
     //rtc.setDate(26, 10, 2017); //Seta a data. Ex.: 20 de Agosto de 2017
 
     //rtc.setDateTime(__DATE__, __TIME__);
-
-    
 }
 
 void loop() // Laco infinito
 {
     dataehora = rtc.getDateTime(); // Obtem a data e a hora e 'escreve' na variável
-    leTemperaturaAtual(); // Le a temperatura atual
-    leHumidadeSolo(); // Le a humidade do solo
-    lerBotoes();  //Verifica o estado dos botões
-    changeMenu(); //Muda a tela conforme a selecionada
-    dispMenu(); // Exibe o item do menu
+    leTemperaturaAtual();          // Le a temperatura atual
+    leHumidadeSolo();              // Le a humidade do solo
+    lerBotoes();                   //Verifica o estado dos botões
+    changeMenu();                  //Muda a tela conforme a selecionada
+    dispMenu();                    // Exibe o item do menu
 
     //Serial.println(analogRead(Botoes)); // Printa no serial o valor analogico dos botoes
 }
@@ -125,7 +123,7 @@ void lerBotoes()
 {
     // Le o valor dos botoes
     int valorbotao = analogRead(Botoes);
-   
+
     if (valorbotao > 1008 && valorbotao < 1020)
         estado_butDireito = 0x01;             //Botão DIREITO pressionado? Seta flag
     if (valorbotao < 50 && estado_butDireito) //Botão DIREITO solto e flag setada?
@@ -182,16 +180,16 @@ void dispMenu() //Mostra o menu atual
     case 0x01:          //Caso 1
         tela_inicial(); //Chama a função da marca e da hora
 
-        break;            //break
-    case 0x02:            //Caso 4
+        break;             //break
+    case 0x02:             //Caso 4
         telaTemperatura(); //Chama função para o definir a quantidade
 
-        break;            //break
-    case 0x03:            //Caso 4
+        break;              //break
+    case 0x03:              //Caso 4
         telaHumidadeSolo(); //Chama função para o controle dos minutos
 
-        break;            //break
-    case 0x04:            //Caso 4
+        break;                 //break
+    case 0x04:                 //Caso 4
         telaUltimaIrrigacao(); //Chama função para o controle dos minutos
 
         break; //break
@@ -277,29 +275,29 @@ void limpaFuncoes() // Funcao que limpa as variaveis de funcao
 void leTemperaturaAtual() // Funcao que le a temperatura atual
 {
 
-  h = dht.readHumidity();
-  t = dht.readTemperature();
-  
-  // testa se retorno é valido, caso contrário algo está errado.
-  if (isnan(t) || isnan(h)) 
-  {
-    Serial.println("Failed to read from DHT");
-  } 
-  else
-  {
-    //Serial.print("Umidade: ");
-    //Serial.print(h);
-    //Serial.print(" %t");
-    //Serial.print("Temperatura: ");
-    //Serial.print(t);
-    //Serial.println(" *C");
-  }
+    humidadeAmbiente = dht.readHumidity();
+    temperaturaAmbiente = dht.readTemperature();
+
+    // testa se retorno é valido, caso contrário algo está errado.
+    if (isnan(t) || isnan(h))
+    {
+        Serial.println("Failed to read from DHT");
+    }
+    else
+    {
+        //Serial.print("Umidade: ");
+        //Serial.print(h);
+        //Serial.print(" %t");
+        //Serial.print("Temperatura: ");
+        //Serial.print(t);
+        //Serial.println(" *C");
+    }
 }
 
 void leHumidadeSolo()
 {
-  humidadeAnalogico = analogRead(sensorHumidade);
-  humidade = map(humidadeAnalogico, 1023, 0, 0, 100);
-  //Serial.print("Humidade solo: ");
-  //Serial.println(humidade);
+    humidadeAnalogicoSolo = analogRead(sensorHumidade);
+    humidadeSolo = map(humidadeAnalogicoSolo, 1023, 0, 0, 100);
+    //Serial.print("Humidade solo: ");
+    //Serial.println(humidade);
 }
